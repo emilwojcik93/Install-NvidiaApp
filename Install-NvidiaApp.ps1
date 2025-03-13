@@ -185,12 +185,6 @@ function Install-NvidiaApp {
 
         if ($DryRun) {
             Write-Output "Dry run mode: Skipping download and installation."
-            Write-Output "GPU Model: $($output.GPUModel)"
-            Write-Output "URL: $($output.URL)"
-            Write-Output "Filename: $($output.Filename)"
-            Write-Output "Size of package: $($output.SizeOfPackage)"
-            Write-Output "Version: $($output.Version)"
-            Write-Output "Install command: $($output.InstallCommand)"
             return $output
         }
 
