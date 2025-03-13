@@ -6,8 +6,9 @@ permissions:
 
 on:
   push:
-    paths:
-      - Install-NvidiaApp.ps1 # Runs on changes in specific file
+    paths: # Runs on changes in specific files
+      - Install-NvidiaApp.ps1
+      - README.md
   workflow_dispatch: # Allows manual trigger
 
 jobs:
@@ -31,6 +32,12 @@ jobs:
           name: install-nvidiaapp-ps1
           path: ./Install-NvidiaApp.ps1
 
+      - name: Upload README.md
+        uses: actions/upload-artifact@v4
+        with:
+          name: readme-md
+          path: ./README.md
+
   release:
     needs: build
     runs-on: windows-latest
@@ -40,6 +47,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: install-nvidiaapp-ps1
+          path: ./output
+
+      - name: Download README.md
+        uses: actions/download-artifact@v4
+        with:
+          name: readme-md
           path: ./output
 
       - name: Set Version to Today's Date
@@ -52,17 +65,21 @@ jobs:
       - name: Dry Run of Install-NvidiaApp.ps1
         run: pwsh -Command "./output/Install-NvidiaApp.ps1 -DryRun -Force"
 
+      - name: Read README.md
+        id: read_readme
+        run: |
+          $readme = Get-Content -Path ./output/README.md -Raw
+          echo "README_CONTENT<<EOF" >> $env:GITHUB_ENV
+          echo "$readme" >> $env:GITHUB_ENV
+          echo "EOF" >> $env:GITHUB_ENV
+        shell: pwsh
+
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
           name: "Install-NvidiaApp.ps1 Release ${{ env.VERSION }}"
-          body: |
-            Automated release for Install-NvidiaApp.ps1
-            To install the latest version, run:
-            ```powershell
-            &([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1)))
-            ```
+          body: ${{ env.README_CONTENT }}
           files: |
             ./output/Install-NvidiaApp.ps1
         env:
