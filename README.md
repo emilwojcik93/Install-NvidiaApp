@@ -37,8 +37,35 @@ irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/I
 You can fetch properties from the script execution by storing the output in a variable. Here is an example:
 
 ```powershell
-$output = &([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1))) -DryRun -Force
-$output.URL
+$nvidaParams = &([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1))) -DryRun -Force
+$nvidaParams.URL
+```
+
+### Hiding Warning Messages
+To hide warning messages during script execution, you can redirect the warning stream to `$null`. Here is an example:
+
+```powershell
+$nvidaParams = (&([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1))) -DryRun -Force) 3>$null
+```
+
+### Listing All Properties
+You can list all available properties from the script execution by accessing the properties of the output object. Here are examples:
+
+```powershell
+$nvidaParams = (&([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1))) -DryRun -Force) 3>$null
+$nvidaParams.GPUModel
+$nvidaParams.URL
+$nvidaParams.Filename
+$nvidaParams.SizeOfPackage
+$nvidaParams.Version
+$nvidaParams.InstallCommand
+```
+
+You can also list all properties at once using `Select-Object` and wildcard:
+
+```powershell
+$nvidaParams = (&([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1))) -DryRun -Force) 3>$null
+$nvidaParams | Format-List *
 ```
 
 ### Available Properties
