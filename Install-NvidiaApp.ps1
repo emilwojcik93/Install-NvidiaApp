@@ -62,8 +62,12 @@ function Get-RemoteFileSize {
         [string]$url
     )
     Write-Verbose "Getting remote file size for URL: $url"
-    $remoteFileSize = (Invoke-WebRequest -Uri $url -Method Head).Headers['Content-Length']
+    $response = Invoke-WebRequest -Uri $url -Method Head
+    $remoteFileSize = $response.Headers['Content-Length']
     if ($remoteFileSize) {
+        if ($remoteFileSize -is [array]) {
+            $remoteFileSize = $remoteFileSize[0]
+        }
         return [int64]$remoteFileSize
     } else {
         Write-Warning "Could not determine the remote file size."
