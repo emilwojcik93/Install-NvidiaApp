@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set Version to Today's Date
         id: extract_version
@@ -26,7 +26,7 @@ jobs:
         shell: pwsh
 
       - name: Upload Install-NvidiaApp.ps1
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: install-nvidiaapp-ps1
           path: ./Install-NvidiaApp.ps1
@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Download Install-NvidiaApp.ps1
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: install-nvidiaapp-ps1
           path: ./output
