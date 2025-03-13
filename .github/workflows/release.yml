@@ -1,0 +1,45 @@
+name: Release on Script Change
+
+permissions:
+  contents: write
+  actions: read
+
+on:
+  push:
+    paths:
+      - Install-NvidiaApp.ps1 # Runs on changes in specfici file
+  workflow_dispatch: # Allows manual trigger
+      
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set Version to Today's Date
+        id: get_date
+        run: echo "VERSION=$(Get-Date -Format 'yy.MM.dd')" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Dry Run of Install-NvidiaApp.ps1
+        run: pwsh -Command "./Install-NvidiaApp.ps1 -DryRun -Force"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
+          body: |
+            Automated release for Install-NvidiaApp.ps1
+            To install the latest version, run:
+            ```powershell
+            &([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/Install-NvidiaApp.ps1)))
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Install-NvidiaApp.ps1 to Release
+        run: gh release upload "${{ env.VERSION }}" Install-NvidiaApp.ps1 --clobber

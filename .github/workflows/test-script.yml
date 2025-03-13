@@ -1,0 +1,46 @@
+name: Test Install-NvidiaApp.ps1 Script
+
+on:
+    schedule:
+      - cron: '0 0 * * 0' # Runs every week on Sunday at midnight
+    workflow_dispatch: # Allows manual trigger
+
+jobs:
+  test-script:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Install-NvidiaApp.ps1 with Retries
+        id: run_script
+        run: |
+          $attempt = 0
+          $maxAttempts = 3
+          $success = $false
+
+          while ($attempt -lt $maxAttempts -and -not $success) {
+            $attempt++
+            try {
+              &([ScriptBlock]::Create((irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1))) -DryRun -Force
+              echo "success" > success_$attempt.txt
+              $success = $true
+            } catch {
+              echo "failure" > failure_$attempt.txt
+            }
+          }
+
+          if (-not $success) {
+            echo "All attempts failed. Exiting with error."
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Save Output
+        uses: actions/upload-artifact@v2
+        with:
+          name: script-output
+          path: |
+            success_*.txt
+            failure_*.txt
