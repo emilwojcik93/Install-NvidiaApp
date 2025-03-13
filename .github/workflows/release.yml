@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set Version to Today's Date
         id: extract_version
@@ -26,7 +26,7 @@ jobs:
         shell: pwsh
 
       - name: Upload Install-NvidiaApp.ps1
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: install-nvidiaapp-ps1
           path: ./Install-NvidiaApp.ps1
@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Download Install-NvidiaApp.ps1
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: install-nvidiaapp-ps1
           path: ./output
@@ -53,7 +53,7 @@ jobs:
         run: pwsh -Command "./output/Install-NvidiaApp.ps1 -DryRun -Force"
 
       - name: Create or Update GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
           name: "Install-NvidiaApp.ps1 Release ${{ env.VERSION }}"
